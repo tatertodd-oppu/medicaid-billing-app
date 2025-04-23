@@ -10,10 +10,8 @@ CORS(app, expose_headers=["Content-Disposition"])
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///billing.db"
 db = SQLAlchemy(app)
 
-with app.app_context():
-    db.create_all()
+# -------------------- MODELS --------------------
 
-# Models
 class Recipient(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     Last_Name = db.Column(db.String(12))
@@ -32,7 +30,6 @@ class Recipient(db.Model):
             "Trip_Service_Code": self.Trip_Service_Code,
         }
 
-
 class Schedule(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     recipient_id = db.Column(db.Integer)
@@ -45,6 +42,10 @@ class BillingEntry(db.Model):
     date = db.Column(db.String(20))
     work_units = db.Column(db.Integer)
     trip_units = db.Column(db.Integer)
+
+# ✅ THIS MUST COME AFTER THE MODELS
+with app.app_context():
+    db.create_all()
 
 # Routes
 @app.route("/api/recipients", methods=["GET", "POST"])
