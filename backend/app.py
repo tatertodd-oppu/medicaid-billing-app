@@ -228,6 +228,12 @@ def delete_schedule(id):
         return jsonify({"status": "deleted"})
     return jsonify({"error": "Not found"}), 404
 
+@app.route("/api/init-db")
+def init_db():
+    with app.app_context():
+        db.create_all()
+    return "Database initialized."
+
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
