@@ -11,6 +11,15 @@ const weekdayColors = {
   friday: "#9aa7bf",
 };
 
+const sortedRecipients = [...recipients].sort((a, b) => {
+  const lastA = a.Last_Name.toLowerCase();
+  const lastB = b.Last_Name.toLowerCase();
+
+  if (lastA < lastB) return -1;
+  if (lastA > lastB) return 1;
+  return 0;
+});
+
 export default function Schedule() {
   const [recipients, setRecipients] = useState([]);
   const [schedules, setSchedules] = useState([]);
@@ -78,9 +87,9 @@ export default function Schedule() {
           className="border px-2 py-1"
         >
           <option value="">Select Recipient</option>
-          {recipients.map(r => (
-            <option key={r.id} value={r.id}>
-              {capitalize(r.Last_Name)}, {capitalize(r.First_Name)}
+          {recipients.map((rec) => (
+            <option key={rec.id} value={rec.id}>
+              {rec.Last_Name}, {rec.First_Name.charAt(0).toUpperCase()}.
             </option>
           ))}
         </select>
@@ -134,8 +143,9 @@ export default function Schedule() {
 		  backgroundColor: weekdayColors[s.weekday.toLowerCase()] || "white",
 		}}
 		>
-                <td className="border px-2">{rec?.First_Name &&
-    					      rec.First_Name.charAt(0).toUpperCase() + rec.First_Name.slice(1).toLowerCase()}</td>
+                <td className="border px-2">
+		  {rec?.Last_Name && rec?.First_Name &&
+    		    `${rec.Last_Name.charAt(0).toUpperCase() + rec.Last_Name.slice(1).toLowerCase()}, ${rec.First_Name.charAt(0).toUpperCase()}.`}</td>
                 <td className="border px-2">{capitalize(s.weekday)}</td>
                 <td className="border px-2">{capitalize(s.service_type)}</td>
                 <td className="border px-2">
