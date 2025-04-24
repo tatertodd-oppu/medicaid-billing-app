@@ -54,7 +54,6 @@ export default function Schedule() {
       return;
     }
 
-    // ✅ Service code is valid, proceed to add
     await addSchedule(form);
     const updated = await getSchedules();
     setSchedules(sortByWeekday(updated.data));
@@ -78,22 +77,20 @@ export default function Schedule() {
     if (firstA > firstB) return 1;
     return 0;
   });
-	
+
   return (
     <div>
       <h1 className="text-xl font-bold mb-3">Schedule Management</h1>
 
       <div className="mb-4 flex gap-2 items-end">
-        
-	<select
+        <select
           name="recipient_id"
           value={form.recipient_id}
           onChange={handleChange}
           className="border px-2 py-1"
         >
           <option value="">Select Recipient</option>
-          
-	  {sortedRecipients.map((rec) => (
+          {sortedRecipients.map((rec) => (
             <option key={rec.id} value={rec.id}>
               {capitalize(rec.Last_Name)}, {capitalize(rec.First_Name.charAt(0))}
             </option>
@@ -141,19 +138,17 @@ export default function Schedule() {
         <tbody>
           {schedules.map((s) => {
             const rec = recipients.find(r => r.id === s.recipient_id);
-	    if (!rec) return null;
+            if (!rec) return null;
             return (
               <tr
-		key={s.id}
-		style={{
-		  backgroundColor: weekdayColors[s.weekday.toLowerCase()] || "white",
-		}}
-		>
-               <td className="border px-2">
-  		 {rec?.Last_Name && rec?.First_Name &&
-    		  `${rec.Last_Name.charAt(0).toUpperCase() + rec.Last_Name.slice(1).toLowerCase()}, ${rec.First_Name.charAt(0).toUpperCase()}.`}
-	       </td>
-
+                key={s.id}
+                style={{
+                  backgroundColor: weekdayColors[s.weekday.toLowerCase()] || "white",
+                }}
+              >
+                <td className="border px-2">
+                  {capitalize(rec.Last_Name)}, {capitalize(rec.First_Name.charAt(0))}.
+                </td>
                 <td className="border px-2">{capitalize(s.weekday)}</td>
                 <td className="border px-2">{capitalize(s.service_type)}</td>
                 <td className="border px-2">
