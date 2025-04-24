@@ -95,7 +95,7 @@ export default function Schedule() {
           
 	  {sortedRecipients.map((rec) => (
             <option key={rec.id} value={rec.id}>
-              {capitalize(r.Last_Name)}, {capitalize(r.First_Name.charAt(0))}
+              {capitalize(rec.Last_Name)}, {capitalize(rec.First_Name.charAt(0))}
             </option>
           ))}
         </select>
