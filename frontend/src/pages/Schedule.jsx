@@ -66,25 +66,25 @@ export default function Schedule() {
     setSchedules(sortByWeekday(updated.data));
   };
 
+	const sortedRecipients = [...recipients].sort((a, b) => {
+	  const lastA = a.Last_Name.toLowerCase();
+	  const lastB = b.Last_Name.toLowerCase();
+	  const firstA = a.First_Name.toLowerCase();
+	  const firstB = b.First_Name.toLowerCase();
+
+  	  if (lastA < lastB) return -1;
+  	  if (lastA > lastB) return 1;
+  	  if (firstA < firstB) return -1;
+  	  if (firstA > firstB) return 1;
+  	  return 0;
+	});
+	
   return (
     <div>
       <h1 className="text-xl font-bold mb-3">Schedule Management</h1>
 
       <div className="mb-4 flex gap-2 items-end">
         
-	  const sortedRecipients = [...recipients].sort((a, b) => {
-  	    const lastA = a.Last_Name.toLowerCase();
-  	    const lastB = b.Last_Name.toLowerCase();
-  	    const firstA = a.First_Name.toLowerCase();
-  	    const firstB = b.First_Name.toLowerCase();
-
-  	    if (lastA < lastB) return -1;
-  	    if (lastA > lastB) return 1;
-  	    if (firstA < firstB) return -1;
-  	    if (firstA > firstB) return 1;
-  	    return 0;
-	  });
-	      
 	<select
           name="recipient_id"
           value={form.recipient_id}
