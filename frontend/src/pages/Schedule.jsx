@@ -72,11 +72,11 @@ export default function Schedule() {
     const firstA = a.First_Name.toLowerCase();
     const firstB = b.First_Name.toLowerCase();
 
-      if (lastA < lastB) return -1;
-      if (lastA > lastB) return 1;
-      if (firstA < firstB) return -1;
-      if (firstA > firstB) return 1;
-      return 0;
+    if (lastA < lastB) return -1;
+    if (lastA > lastB) return 1;
+    if (firstA < firstB) return -1;
+    if (firstA > firstB) return 1;
+    return 0;
   });
 	
   return (
