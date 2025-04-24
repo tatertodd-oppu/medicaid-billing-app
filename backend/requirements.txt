@@ -5,3 +5,4 @@ sqlalchemy
 pydantic
 gunicorn
 gunicorn
+psycopg2-binary
