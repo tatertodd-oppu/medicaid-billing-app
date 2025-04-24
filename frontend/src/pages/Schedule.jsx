@@ -11,15 +11,6 @@ const weekdayColors = {
   friday: "#9aa7bf",
 };
 
-const sortedRecipients = [...recipients].sort((a, b) => {
-  const lastA = a.Last_Name.toLowerCase();
-  const lastB = b.Last_Name.toLowerCase();
-
-  if (lastA < lastB) return -1;
-  if (lastA > lastB) return 1;
-  return 0;
-});
-
 export default function Schedule() {
   const [recipients, setRecipients] = useState([]);
   const [schedules, setSchedules] = useState([]);
@@ -43,6 +34,15 @@ export default function Schedule() {
     });
   };
 
+const sortedRecipients = [...recipients].sort((a, b) => {
+  const lastA = a.Last_Name.toLowerCase();
+  const lastB = b.Last_Name.toLowerCase();
+
+  if (lastA < lastB) return -1;
+  if (lastA > lastB) return 1;
+  return 0;
+});
+	
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -87,7 +87,7 @@ export default function Schedule() {
           className="border px-2 py-1"
         >
           <option value="">Select Recipient</option>
-          {recipients.map((rec) => (
+          {sortedRecipients.map((rec) => (
             <option key={rec.id} value={rec.id}>
               {rec.Last_Name}, {rec.First_Name.charAt(0).toUpperCase()}.
             </option>
