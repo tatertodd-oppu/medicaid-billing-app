@@ -20,19 +20,6 @@ export default function Schedule() {
     service_type: "work",
   });
 
-  const sortedRecipients = [...recipients].sort((a, b) => {
-    const lastA = a.Last_Name.toLowerCase();
-    const lastB = b.Last_Name.toLowerCase();
-    const firstA = a.First_Name.toLowerCase();
-    const firstB = b.First_Name.toLowerCase();
-
-    if (lastA < lastB) return -1;
-    if (lastA > lastB) return 1;
-    if (firstA < firstB) return -1;
-    if (firstA > firstB) return 1;
-    return 0;
-  });
-  
   useEffect(() => {
     getRecipients().then(res => setRecipients(res.data));
     getSchedules().then(res => setSchedules(sortByWeekday(res.data)));
@@ -67,6 +54,7 @@ export default function Schedule() {
       return;
     }
 
+    // ✅ Service code is valid, proceed to add
     await addSchedule(form);
     const updated = await getSchedules();
     setSchedules(sortByWeekday(updated.data));
@@ -90,9 +78,9 @@ export default function Schedule() {
           className="border px-2 py-1"
         >
           <option value="">Select Recipient</option>
-          {sortedRecipients.map((rec) => (
-            <option key={rec.id} value={rec.id}>
-              {capitalize(rec.Last_Name)}, {capitalize(rec.First_Name.charAt(0))}
+          {recipients.map(r => (
+            <option key={r.id} value={r.id}>
+              {capitalize(r.Last_Name)}, {capitalize(r.First_Name)}
             </option>
           ))}
         </select>
@@ -114,8 +102,8 @@ export default function Schedule() {
           onChange={handleChange}
           className="border px-2 py-1"
         >
-          <option value="work">work</option>
-          <option value="trip">trip</option>
+          <option value="work">Work</option>
+          <option value="trip">Trip</option>
         </select>
 
         <button
@@ -138,17 +126,16 @@ export default function Schedule() {
         <tbody>
           {schedules.map((s) => {
             const rec = recipients.find(r => r.id === s.recipient_id);
-            if (!rec) return null;
+	    if (!rec) return null;
             return (
               <tr
-                key={s.id}
-                style={{
-                  backgroundColor: weekdayColors[s.weekday.toLowerCase()] || "white",
-                }}
-              >
-                <td className="border px-2">
-                  {capitalize(rec.Last_Name)}, {capitalize(rec.First_Name.charAt(0))}.
-                </td>
+		key={s.id}
+		style={{
+		  backgroundColor: weekdayColors[s.weekday.toLowerCase()] || "white",
+		}}
+		>
+                <td className="border px-2">{rec?.First_Name &&
+    					      rec.First_Name.charAt(0).toUpperCase() + rec.First_Name.slice(1).toLowerCase()}</td>
                 <td className="border px-2">{capitalize(s.weekday)}</td>
                 <td className="border px-2">{capitalize(s.service_type)}</td>
                 <td className="border px-2">
