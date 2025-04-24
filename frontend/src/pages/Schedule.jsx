@@ -112,7 +112,7 @@ export default function Schedule() {
           className="border px-2 py-1"
         >
           <option value="work">work</option>
-          <option value="trip">wrip</option>
+          <option value="trip">trip</option>
         </select>
 
         <button
