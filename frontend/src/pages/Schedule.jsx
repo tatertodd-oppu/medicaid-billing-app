@@ -71,16 +71,31 @@ export default function Schedule() {
       <h1 className="text-xl font-bold mb-3">Schedule Management</h1>
 
       <div className="mb-4 flex gap-2 items-end">
-        <select
+        
+	  const sortedRecipients = [...recipients].sort((a, b) => {
+  	    const lastA = a.Last_Name.toLowerCase();
+  	    const lastB = b.Last_Name.toLowerCase();
+  	    const firstA = a.First_Name.toLowerCase();
+  	    const firstB = b.First_Name.toLowerCase();
+
+  	    if (lastA < lastB) return -1;
+  	    if (lastA > lastB) return 1;
+  	    if (firstA < firstB) return -1;
+  	    if (firstA > firstB) return 1;
+  	    return 0;
+	  });
+	      
+	<select
           name="recipient_id"
           value={form.recipient_id}
           onChange={handleChange}
           className="border px-2 py-1"
         >
           <option value="">Select Recipient</option>
-          {recipients.map(r => (
-            <option key={r.id} value={r.id}>
-              {capitalize(r.Last_Name)}, {capitalize(r.First_Name)}
+          
+	  {sortedRecipients.map((rec) => (
+            <option key={rec.id} value={rec.id}>
+              {capitalize(r.Last_Name)}, {capitalize(r.First_Name.charAt(0))}
             </option>
           ))}
         </select>
@@ -92,7 +107,7 @@ export default function Schedule() {
           className="border px-2 py-1"
         >
           {weekdayOrder.map(day => (
-            <option key={day} value={capitalize(day)}>{capitalize(day)}</option>
+            <option key={day} value={day}>{day}</option>
           ))}
         </select>
 
@@ -102,8 +117,8 @@ export default function Schedule() {
           onChange={handleChange}
           className="border px-2 py-1"
         >
-          <option value="work">Work</option>
-          <option value="trip">Trip</option>
+          <option value="work">work</option>
+          <option value="trip">trip</option>
         </select>
 
         <button
@@ -134,8 +149,11 @@ export default function Schedule() {
 		  backgroundColor: weekdayColors[s.weekday.toLowerCase()] || "white",
 		}}
 		>
-                <td className="border px-2">{rec?.First_Name &&
-    					      rec.First_Name.charAt(0).toUpperCase() + rec.First_Name.slice(1).toLowerCase()}</td>
+               <td className="border px-2">
+  		 {rec?.Last_Name && rec?.First_Name &&
+    		  `${rec.Last_Name.charAt(0).toUpperCase() + rec.Last_Name.slice(1).toLowerCase()}, ${rec.First_Name.charAt(0).toUpperCase()}.`}
+	       </td>
+
                 <td className="border px-2">{capitalize(s.weekday)}</td>
                 <td className="border px-2">{capitalize(s.service_type)}</td>
                 <td className="border px-2">
