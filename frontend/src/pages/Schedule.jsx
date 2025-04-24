@@ -102,8 +102,8 @@ export default function Schedule() {
           onChange={handleChange}
           className="border px-2 py-1"
         >
-          <option value="work">Work</option>
-          <option value="trip">Trip</option>
+          <option value="work">work</option>
+          <option value="trip">wrip</option>
         </select>
 
         <button
