@@ -16,7 +16,6 @@ const getDayColor = (dateStr) => {
 
 export default function BillingInput() {
   const [recipients, setRecipients] = useState([]);
-  // const [schedules, setSchedules] = useState([]);
   const [scheduledMap, setScheduledMap] = useState({});
   const [form, setForm] = useState([]);
   const [monday, setMonday] = useState("");
@@ -26,7 +25,6 @@ export default function BillingInput() {
 
   const weekdays = ["monday", "tuesday", "wednesday", "thursday", "friday"];
 
-  // 🧠 Format date as MM/DD/YY
   const formatDate = (date) => {
     const mm = String(date.getMonth() + 1).padStart(2, "0");
     const dd = String(date.getDate()).padStart(2, "0");
@@ -56,7 +54,7 @@ export default function BillingInput() {
       for (let i = 0; i < 5; i++) {
         const d = new Date(baseDate);
         d.setDate(baseDate.getDate() + i);
-        result.push(formatDate(d)); // MM/DD/YY
+        result.push(formatDate(d));
       }
 
       setDates(result);
@@ -103,26 +101,32 @@ export default function BillingInput() {
     );
   };
 
-const handleSubmit = async () => {
-  if (hasErrors) {
-    alert("Please fix all errors before submitting.");
-    return;
-  }
-  const validEntries = form.filter((e) => e.work_units || e.trip_units);
-  await saveBillingInput(validEntries);
-  alert("Billing data submitted.");
-  setSubmitted(true);
-};
-
+  const handleSubmit = async () => {
+    if (hasErrors) {
+      alert("Please fix all errors before submitting.");
+      return;
+    }
+    const validEntries = form.filter((e) => e.work_units || e.trip_units);
+    await saveBillingInput(validEntries);
+    alert("Billing data submitted.");
+    setSubmitted(true);
+  };
 
   const getWeekday = (dateStr) => {
     const d = new Date(dateStr);
-    const dayNum = d.getDay(); // 0=Sunday, 6=Saturday
+    const dayNum = d.getDay();
     const map = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
     return weekdays.includes(map[dayNum]) ? map[dayNum] : null;
   };
 
   const hasErrors = Object.keys(errors).length > 0;
+
+  // ✅ Alphabetize recipients by last name
+  const sortedRecipients = [...recipients].sort((a, b) => {
+    const lastA = a.Last_Name.toLowerCase();
+    const lastB = b.Last_Name.toLowerCase();
+    return lastA.localeCompare(lastB);
+  });
 
   return (
     <div>
@@ -137,8 +141,8 @@ const handleSubmit = async () => {
           onChange={(e) => {
             const input = e.target.value;
             setMonday(input);
-	    const isValidFormat = /^\d{2}\/\d{2}\/\d{2}$/.test(input);
-	    if (isValidFormat) parseMondayDate(input);
+            const isValidFormat = /^\d{2}\/\d{2}\/\d{2}$/.test(input);
+            if (isValidFormat) parseMondayDate(input);
           }}
           className="border px-2 py-1 border-gray-600"
         />
@@ -147,64 +151,48 @@ const handleSubmit = async () => {
       {dates.length === 5 && (
         <>
           <table className="w-full text-sm border">
-	<thead>
-	  <tr>
-	    <th className="border p-1">Recipient</th>
-	    {dates.map(d => (
-	      <th
-	        key={d}
-	        colSpan={2}
-	        className="border p-1 text-center"
-	        style={{ backgroundColor: getDayColor(d) }}
-	      >
-	        {d}
-	      </th>
-	    ))}
-	  </tr>
-	  <tr>
-	    <th></th>
-	    {dates.map(d => {
-	      const weekday = new Date(d).toLocaleDateString("en-US", {
-	        weekday: "long",
-	      });
-	      return (
-	        <th
-	          key={d + "_day"}
-	          colSpan={2}
-	          className="border p-1 text-center font-medium"
-	          style={{ backgroundColor: getDayColor(d) }}
-	        >
-	          {weekday}
-	        </th>
-	      );
-	    })}
-	  </tr>
-	  <tr>
-	    <th></th>
-	    {dates.map(d => (
-	      <>
-	        <th
-	          key={d + "_work"}
-	          className="border px-1"
-	          style={{ backgroundColor: getDayColor(d) }}
-	        >
-	          Work
-	        </th>
-	        <th
-	          key={d + "_trip"}
-	          className="border px-1"
-	          style={{ backgroundColor: getDayColor(d) }}
-	        >
-	          Trip
-	        </th>
-	      </>
-	    ))}
-	  </tr>
-	</thead>
+            <thead>
+              <tr>
+                <th className="border p-1">Recipient</th>
+                {dates.map((d) => (
+                  <th key={d} colSpan={2} className="border p-1 text-center" style={{ backgroundColor: getDayColor(d) }}>
+                    {d}
+                  </th>
+                ))}
+              </tr>
+              <tr>
+                <th></th>
+                {dates.map((d) => {
+                  const weekday = new Date(d).toLocaleDateString("en-US", {
+                    weekday: "long",
+                  });
+                  return (
+                    <th key={d + "_day"} colSpan={2} className="border p-1 text-center font-medium" style={{ backgroundColor: getDayColor(d) }}>
+                      {weekday}
+                    </th>
+                  );
+                })}
+              </tr>
+              <tr>
+                <th></th>
+                {dates.map((d) => (
+                  <>
+                    <th key={d + "_work"} className="border px-1" style={{ backgroundColor: getDayColor(d) }}>
+                      Work
+                    </th>
+                    <th key={d + "_trip"} className="border px-1" style={{ backgroundColor: getDayColor(d) }}>
+                      Trip
+                    </th>
+                  </>
+                ))}
+              </tr>
+            </thead>
             <tbody>
-              {recipients.map((r) => (
+              {sortedRecipients.map((r) => (
                 <tr key={r.id}>
-                  <td className="border px-2">{r.First_Name.charAt(0).toUpperCase() + r.First_Name.slice(1).toLowerCase()}</td>
+                  <td className="border px-2">
+                    {r.Last_Name}, {r.First_Name.charAt(0).toUpperCase()}.
+                  </td>
                   {dates.map((d) => {
                     const e = form.find((f) => f.recipient_id === r.id && f.date === d);
                     const day = getWeekday(d);
@@ -224,13 +212,9 @@ const handleSubmit = async () => {
                                 type="number"
                                 className="w-16 px-1 border border-gray-500 rounded-sm appearance-none focus:outline-none text-center"
                                 value={e?.work_units || ""}
-                                onChange={(e2) =>
-                                  updateField(r.id, d, "work_units", e2.target.value)
-                                }
+                                onChange={(e2) => updateField(r.id, d, "work_units", e2.target.value)}
                               />
-                              {workError && (
-                                <div className="text-red-600 text-xs">{workError}</div>
-                              )}
+                              {workError && <div className="text-red-600 text-xs">{workError}</div>}
                             </>
                           )}
                         </td>
@@ -241,13 +225,9 @@ const handleSubmit = async () => {
                                 type="number"
                                 className="w-16 px-1 border border-gray-500 rounded-sm appearance-none focus:outline-none text-center"
                                 value={e?.trip_units || ""}
-                                onChange={(e2) =>
-                                  updateField(r.id, d, "trip_units", e2.target.value)
-                                }
+                                onChange={(e2) => updateField(r.id, d, "trip_units", e2.target.value)}
                               />
-                              {tripError && (
-                                <div className="text-red-600 text-xs">{tripError}</div>
-                              )}
+                              {tripError && <div className="text-red-600 text-xs">{tripError}</div>}
                             </>
                           )}
                         </td>
@@ -261,12 +241,12 @@ const handleSubmit = async () => {
 
           <button
             onClick={handleSubmit}
-	    disabled={submitted || hasErrors}
+            disabled={submitted || hasErrors}
             className={`mt-4 px-4 py-2 rounded text-white ${
-	          submitted || hasErrors
-	            ? "bg-gray-400 cursor-not-allowed"
-	            : "bg-green-600 hover:bg-green-700"
-	    }`}
+              submitted || hasErrors
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-green-600 hover:bg-green-700"
+            }`}
           >
             Submit Billing
           </button>
