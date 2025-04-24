@@ -20,6 +20,19 @@ export default function Schedule() {
     service_type: "work",
   });
 
+  const sortedRecipients = [...recipients].sort((a, b) => {
+    const lastA = a.Last_Name.toLowerCase();
+    const lastB = b.Last_Name.toLowerCase();
+    const firstA = a.First_Name.toLowerCase();
+    const firstB = b.First_Name.toLowerCase();
+
+    if (lastA < lastB) return -1;
+    if (lastA > lastB) return 1;
+    if (firstA < firstB) return -1;
+    if (firstA > firstB) return 1;
+    return 0;
+  });
+  
   useEffect(() => {
     getRecipients().then(res => setRecipients(res.data));
     getSchedules().then(res => setSchedules(sortByWeekday(res.data)));
@@ -64,19 +77,6 @@ export default function Schedule() {
     const updated = await getSchedules();
     setSchedules(sortByWeekday(updated.data));
   };
-
-  const sortedRecipients = [...recipients].sort((a, b) => {
-    const lastA = a.Last_Name.toLowerCase();
-    const lastB = b.Last_Name.toLowerCase();
-    const firstA = a.First_Name.toLowerCase();
-    const firstB = b.First_Name.toLowerCase();
-
-    if (lastA < lastB) return -1;
-    if (lastA > lastB) return 1;
-    if (firstA < firstB) return -1;
-    if (firstA > firstB) return 1;
-    return 0;
-  });
 
   return (
     <div>
