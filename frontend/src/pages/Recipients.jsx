@@ -20,12 +20,9 @@ export default function Recipients() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     if (name === "Medicaid_ID") {
-      // Allow only digits and max 12 chars
       if (!/^\d{0,12}$/.test(value)) return;
     }
-
     setForm({ ...form, [name]: value });
   };
 
@@ -54,6 +51,10 @@ export default function Recipients() {
 
   const capitalize = (str) =>
     str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
+
+  const sortedRecipients = [...recipients].sort((a, b) =>
+    a.Last_Name.localeCompare(b.Last_Name)
+  );
 
   return (
     <div>
@@ -118,7 +119,7 @@ export default function Recipients() {
       </form>
 
       <ul className="list-disc pl-4 space-y-1">
-        {recipients.map((r) => (
+        {sortedRecipients.map((r) => (
           <li key={r.id} className="flex justify-between items-center">
             <span>
               {capitalize(r.Last_Name)}, {capitalize(r.First_Name)} — {r.Medicaid_ID},
