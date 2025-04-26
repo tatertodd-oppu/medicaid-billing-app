@@ -125,7 +125,7 @@ export default function Schedule() {
           onClick={handleSubmit}
           disabled={!canSubmit}
           className={`bg-blue-600 text-white px-3 py-1 rounded ${
-            !canSubmit ? "opacity-50 cursor-not-allowed" : ""
+            !canSubmit ? "bg-gray-400 cursor-not-allowed" : ""
           }`}
         >
           Add Schedule
