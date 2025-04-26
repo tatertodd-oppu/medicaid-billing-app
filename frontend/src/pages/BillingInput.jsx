@@ -262,7 +262,7 @@ export default function BillingInput() {
             className={`mt-4 px-4 py-2 rounded text-white ${
               submitted || hasErrors
                 ? "bg-gray-400 cursor-not-allowed"
-                : "bg-green-600 hover:bg-green-700"
+                : "bg-blue-600 hover:bg-green-700"
             }`}
           >
             Submit Billing
