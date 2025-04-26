@@ -22,6 +22,7 @@ export default function BillingInput() {
   const [dates, setDates] = useState([]);
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const [mondayError, setMondayError] = useState("");
 
   const weekdays = ["monday", "tuesday", "wednesday", "thursday", "friday"];
 
@@ -133,19 +134,37 @@ export default function BillingInput() {
       <h1 className="text-xl font-bold mb-3">Billing Input</h1>
 
       <div className="mb-4">
-        <label className="font-semibold mr-2">Enter Monday’s Date (MM/DD/YY):</label>
+        <label className="font-semibold mr-2">Enter Monday’s Date:</label>
         <input
           type="text"
-          placeholder="e.g. 04/21/25"
+          placeholder="MMDDYY"
           value={monday}
           onChange={(e) => {
-            const input = e.target.value;
+            let input = e.target.value.replace(/\D/g, "").slice(0, 6);
             setMonday(input);
-            const isValidFormat = /^\d{2}\/\d{2}\/\d{2}$/.test(input);
-            if (isValidFormat) parseMondayDate(input);
+
+            if (input.length === 6) {
+              const [mm, dd, yy] = [input.slice(0,2), input.slice(2,4), input.slice(4,6)];
+              const fullYear = parseInt(`20${yy}`);
+              const parsedDate = new Date(fullYear, parseInt(mm) - 1, parseInt(dd));
+
+              if (parsedDate.getDay() === 1) {
+                parseMondayDate(`${mm}/${dd}/${yy}`);
+                setMondayError("");
+              } else {
+                setDates([]);
+                setMondayError("The date provided does not fall on Monday.");
+              }
+            } else {
+              setDates([]);
+              setMondayError("");
+            }
           }}
           className="border px-2 py-1 border-gray-600"
         />
+        {mondayError && (
+          <div className="text-red-600 text-sm mt-1">{mondayError}</div>
+        )}
       </div>
 
       {dates.length === 5 && (
@@ -163,9 +182,7 @@ export default function BillingInput() {
               <tr>
                 <th></th>
                 {dates.map((d) => {
-                  const weekday = new Date(d).toLocaleDateString("en-US", {
-                    weekday: "long",
-                  });
+                  const weekday = new Date(d).toLocaleDateString("en-US", { weekday: "long" });
                   return (
                     <th key={d + "_day"} colSpan={2} className="border p-1 text-center font-medium" style={{ backgroundColor: getDayColor(d) }}>
                       {weekday}
