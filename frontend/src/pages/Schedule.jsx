@@ -34,36 +34,17 @@ export default function Schedule() {
     });
   };
 
-const sortedRecipients = [...recipients].sort((a, b) => {
-  const lastA = a.Last_Name.toLowerCase();
-  const lastB = b.Last_Name.toLowerCase();
+  const sortedRecipients = [...recipients].sort((a, b) => {
+    const lastA = a.Last_Name.toLowerCase();
+    const lastB = b.Last_Name.toLowerCase();
+    return lastA.localeCompare(lastB);
+  });
 
-  if (lastA < lastB) return -1;
-  if (lastA > lastB) return 1;
-  return 0;
-});
-	
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async () => {
-    const rec = recipients.find(r => r.id === Number(form.recipient_id));
-    const addingTrip = form.service_type.toLowerCase() === "trip";
-    const addingWork = form.service_type.toLowerCase() === "work";
-
-    const validWork = ["ADF", "AVF", "FVF"];
-    const validTrip = ["ATB", "FTB"];
-
-    if (
-      (addingWork && !validWork.includes((rec?.Work_Service_Code || "").toUpperCase())) ||
-      (addingTrip && !validTrip.includes((rec?.Trip_Service_Code || "").toUpperCase()))
-    ) {
-      alert("This recipient does not have a valid service code for the selected service type.");
-      return;
-    }
-
-    // ✅ Service code is valid, proceed to add
     await addSchedule(form);
     const updated = await getSchedules();
     setSchedules(sortByWeekday(updated.data));
@@ -74,6 +55,31 @@ const sortedRecipients = [...recipients].sort((a, b) => {
     const updated = await getSchedules();
     setSchedules(sortByWeekday(updated.data));
   };
+
+  const rec = recipients.find(r => r.id === Number(form.recipient_id));
+  const addingTrip = form.service_type.toLowerCase() === "trip";
+  const addingWork = form.service_type.toLowerCase() === "work";
+
+  const validWorkCodes = ["ADF", "AVF", "FVF"];
+  const validTripCodes = ["ATB", "FTB"];
+
+  const hasValidServiceCode =
+    (addingWork && validWorkCodes.includes((rec?.Work_Service_Code || "").toUpperCase())) ||
+    (addingTrip && validTripCodes.includes((rec?.Trip_Service_Code || "").toUpperCase()));
+
+  const isDuplicate = schedules.some(
+    (s) =>
+      s.recipient_id === Number(form.recipient_id) &&
+      s.weekday.toLowerCase() === form.weekday.toLowerCase() &&
+      s.service_type.toLowerCase() === form.service_type.toLowerCase()
+  );
+
+  const canSubmit =
+    form.recipient_id &&
+    form.weekday &&
+    form.service_type &&
+    hasValidServiceCode &&
+    !isDuplicate;
 
   return (
     <div>
@@ -117,11 +123,25 @@ const sortedRecipients = [...recipients].sort((a, b) => {
 
         <button
           onClick={handleSubmit}
-          className="bg-blue-600 text-white px-3 py-1 rounded"
+          disabled={!canSubmit}
+          className={`bg-blue-600 text-white px-3 py-1 rounded ${
+            !canSubmit ? "opacity-50 cursor-not-allowed" : ""
+          }`}
         >
           Add Schedule
         </button>
       </div>
+
+      {isDuplicate && (
+        <div className="text-red-600 text-xs mb-2">
+          This schedule already exists.
+        </div>
+      )}
+      {!hasValidServiceCode && form.recipient_id && (
+        <div className="text-red-600 text-xs mb-2">
+          Recipient does not have a valid service code for the selected service type.
+        </div>
+      )}
 
       <table className="text-sm w-full border">
         <thead>
@@ -135,17 +155,18 @@ const sortedRecipients = [...recipients].sort((a, b) => {
         <tbody>
           {schedules.map((s) => {
             const rec = recipients.find(r => r.id === s.recipient_id);
-	    if (!rec) return null;
+            if (!rec) return null;
             return (
               <tr
-		key={s.id}
-		style={{
-		  backgroundColor: weekdayColors[s.weekday.toLowerCase()] || "white",
-		}}
-		>
+                key={s.id}
+                style={{
+                  backgroundColor: weekdayColors[s.weekday.toLowerCase()] || "white",
+                }}
+              >
                 <td className="border px-2">
-		  {rec?.Last_Name && rec?.First_Name &&
-    		    `${rec.Last_Name.charAt(0).toUpperCase() + rec.Last_Name.slice(1).toLowerCase()}, ${rec.First_Name.charAt(0).toUpperCase()}.`}</td>
+                  {rec?.Last_Name && rec?.First_Name &&
+                    `${rec.Last_Name.charAt(0).toUpperCase() + rec.Last_Name.slice(1).toLowerCase()}, ${rec.First_Name.charAt(0).toUpperCase()}.`}
+                </td>
                 <td className="border px-2">{capitalize(s.weekday)}</td>
                 <td className="border px-2">{capitalize(s.service_type)}</td>
                 <td className="border px-2">
