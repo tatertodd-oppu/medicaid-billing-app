@@ -124,7 +124,7 @@ export default function Schedule() {
         <button
           onClick={handleSubmit}
           disabled={!canSubmit}
-          className={`bg-green-600 text-white px-3 py-1 rounded ${
+          className={`bg-blue-600 text-white px-3 py-1 rounded ${
             !canSubmit ? "bg-gray-400 cursor-not-allowed" : ""
           }`}
         >
