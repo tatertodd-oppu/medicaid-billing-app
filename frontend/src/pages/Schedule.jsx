@@ -124,8 +124,8 @@ export default function Schedule() {
         <button
           onClick={handleSubmit}
           disabled={!canSubmit}
-          className={`bg-green-600 text-white px-3 py-1 rounded ${
-            !canSubmit ? "bg-gray-400 cursor-not-allowed" : ""
+          className={`text-white px-3 py-1 rounded ${
+            !canSubmit ? "bg-green-600 hover:bg-green-700" : "bg-gray-400 cursor-not-allowed"
           }`}
         >
           Add Schedule
