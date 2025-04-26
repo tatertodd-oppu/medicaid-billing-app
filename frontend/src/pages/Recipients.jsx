@@ -111,7 +111,7 @@ export default function Recipients() {
         <button
           disabled={!canSubmit}
           className={`px-4 py-2 rounded text-white ${
-            canSubmit ? "bg-green-600 hover:bg-green-700" : "bg-gray-400 cursor-not-allowed"
+            canSubmit ? "bg-blue-600 hover:bg-blue-700" : "bg-gray-400 cursor-not-allowed"
           }`}
         >
           Add Recipient
