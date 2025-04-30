@@ -106,8 +106,12 @@ def billing_input():
     entries = request.get_json()
 
     for entry in entries:
-        if not entry.get("work_units") and not entry.get("trip_units"):
+        work = entry.get("work_units", "").strip()
+        trip = entry.get("trip_units", "").strip()
+        
+        if work == "" and trip == "":
             continue
+            
         db.session.add(BillingEntry(**entry))
     db.session.commit()
     return jsonify({"status": "saved"})
