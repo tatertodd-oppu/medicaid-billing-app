@@ -116,6 +116,10 @@ def billing_input():
     db.session.commit()
     return jsonify({"status": "saved"})
 
+    except Exception as e:
+        print("Error saving billing entry:", str(e))  # 🐛 Debug log
+        return jsonify({"error": "Server error processing billing input"}), 500
+
 from datetime import datetime
 
 @app.route("/api/output", methods=["GET"])
