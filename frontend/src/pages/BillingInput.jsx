@@ -107,7 +107,8 @@ export default function BillingInput() {
       alert("Please fix all errors before submitting.");
       return;
     }
-    const validEntries = form.filter((e) => e.work_units || e.trip_units);
+    const validEntries = form.filter(
+      (e) => e.work_units !== "" || e.trip_units !== "");
     await saveBillingInput(validEntries);
     alert("Billing data submitted.");
     setSubmitted(true);
