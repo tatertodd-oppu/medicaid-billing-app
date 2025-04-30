@@ -142,70 +142,38 @@ def output():
     for e in entries:
         r = recipients.get(e.recipient_id)
 
-        # ✅ Skip if recipient is missing or incomplete
-        if not r or not r.Last_Name or not r.First_Name or not r.Medicaid_ID:
+        # 🛡️ Skip if recipient doesn't exist
+        if r is None:
+            print(f"❌ Skipping entry with unknown recipient_id={e.recipient_id}")
             continue
 
         try:
-            last_name = r.Last_Name[:5].upper()
-            first_initial = r.First_Name[:1].upper()
-            medicaid_id = r.Medicaid_ID
-            billing_month = e.date.split("/")[0]
-            billing_year = e.date.split("/")[2]
-            day = e.date.split("/")[1]  # DD from MM/DD/YY
-        except Exception as parse_err:
-            print("Skipping malformed billing entry:", e, parse_err)
+            last_name = (r.Last_Name or "")[:5].upper()
+            first_initial = (r.First_Name or "")[:1].upper()
+            medicaid_id = r.Medicaid_ID or ""
+            billing_month, day, billing_year = e.date.split("/")
+        except Exception as err:
+            print(f"❌ Skipping malformed entry: {e.__dict__} → {err}")
             continue
 
-        if e.work_units not in [None, "", 0]:
-            line = (
-                f"{billing_month}"
-                f"{billing_year}"
-                f"{current_date}"
-                f"{form}"
-                f"{medicaid_id}"
-                f"{last_name:<5}"
-                f"{first_initial}"
-                f"{contract}"
-                f"{day}"
-                f"{r.Work_Service_Code}"
-                f"{str(e.work_units):>4}"
-                f"{othercode}"
-                f"{otheramount}"
-                f"{groupsize}"
-                f"{county}"
-                f"{workrate:>7}"
-                f"{optionalref}"
-                f"{staffsize}"
+        if e.work_units:
+            results.append(
+                f"{billing_month}{billing_year}{current_date}{form}{medicaid_id}"
+                f"{last_name:<5}{first_initial}{contract}{day}{r.Work_Service_Code}"
+                f"{str(e.work_units):>4}{othercode}{otheramount}{groupsize}{county}"
+                f"{workrate:>7}{optionalref}{staffsize}"
             )
-            results.append(line)
 
-        if e.trip_units not in [None, "", 0]:
-            line = (
-                f"{billing_month}"
-                f"{billing_year}"
-                f"{current_date}"
-                f"{form}"
-                f"{medicaid_id}"
-                f"{last_name:<5}"
-                f"{first_initial}"
-                f"{contract}"
-                f"{day}"
-                f"{r.Trip_Service_Code}"
-                f"{str(e.trip_units):>4}"
-                f"{othercode}"
-                f"{otheramount}"
-                f"{groupsize}"
-                f"{county}"
-                f"{triprate:>7}"
-                f"{optionalref}"
-                f"{staffsize}"
+        if e.trip_units:
+            results.append(
+                f"{billing_month}{billing_year}{current_date}{form}{medicaid_id}"
+                f"{last_name:<5}{first_initial}{contract}{day}{r.Trip_Service_Code}"
+                f"{str(e.trip_units):>4}{othercode}{otheramount}{groupsize}{county}"
+                f"{triprate:>7}{optionalref}{staffsize}"
             )
-            results.append(line)
 
-    print("✅ Billing entries processed:", len(results))
+    print(f"✅ Output lines generated: {len(results)}")
     return jsonify(results)
-
 
 @app.route("/api/export", methods=["GET"])
 def export():
