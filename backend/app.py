@@ -103,10 +103,15 @@ def schedules():
 
 @app.route("/api/billing-input", methods=["POST"])
 def billing_input():
-    entries = request.get_json()["entries"]
+    entries = request.get_json()
+
+    if not isinstance(entries, list):
+        return jsonify({"error": "Expected a list of entries"}), 400
+
     for entry in entries:
-        new_b = BillingEntry(**entry)
-        db.session.add(new_b)
+        if not entry.get("work_units") and not entry.get("trip_units"):
+            continue
+        db.session.add(BillingEntry(**entry))
     db.session.commit()
     return jsonify({"status": "saved"})
 
