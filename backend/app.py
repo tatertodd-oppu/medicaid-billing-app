@@ -105,15 +105,21 @@ def schedules():
 def billing_input():
     entries = request.get_json()
 
-    if not isinstance(entries, list):
+    if not isinstance(entries, list) or not entries:
+        print("Invalid or empty billing data:", entries)
         return jsonify({"error": "Expected a list of entries"}), 400
+
+    print(f"Received {len(entires)} billing entries")
     
     for entry in entries:
-        new_b = BillingEntry(**entry)
-        db.session.add(new_b)
+        try:
+            new_b = BillingEntry(**entry)
+            db.session.add(new_b)
+        except Exception as e:
+            print("Failed to add entry:", entry, e)
+        
     db.session.commit()
     return jsonify({"status": "saved"})
-    print("Received billing entries:", entries)
 
 from datetime import datetime
 
