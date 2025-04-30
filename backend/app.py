@@ -105,9 +105,6 @@ def schedules():
 def billing_input():
     entries = request.get_json()
 
-    if not isinstance(entries, list):
-        return jsonify({"error": "Expected a list of entries"}), 400
-
     for entry in entries:
         if not entry.get("work_units") and not entry.get("trip_units"):
             continue
