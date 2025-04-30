@@ -103,12 +103,17 @@ def schedules():
 
 @app.route("/api/billing-input", methods=["POST"])
 def billing_input():
-    entries = request.get_json()["entries"]
+    entries = request.get_json()
+
+    if not isinstance(entries, list):
+        return jsonify({"error": "Expected a list of entries"}), 400
+    
     for entry in entries:
         new_b = BillingEntry(**entry)
         db.session.add(new_b)
     db.session.commit()
     return jsonify({"status": "saved"})
+    print("Received billing entries:", entries)
 
 from datetime import datetime
 
@@ -149,7 +154,7 @@ def output():
                 f"{current_date}"
                 f"{form}"
                 f"{medicaid_id}"
-                f"{last_name}"
+                f"{last_name:<5}"
                 f"{first_initial}"
                 f"{contract}"
                 f"{day}"
@@ -172,7 +177,7 @@ def output():
                 f"{current_date}"
                 f"{form}"
                 f"{medicaid_id}"
-                f"{last_name}"
+                f"{last_name:<5}"
                 f"{first_initial}"
                 f"{contract}"
                 f"{day}"
