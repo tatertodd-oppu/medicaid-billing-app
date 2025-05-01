@@ -103,8 +103,9 @@ def schedules():
 
 @app.route("/api/billing-input", methods=["POST"])
 def billing_input():
-    entries = request.get_json()
-    print("✅ Incoming entries:", entries)  # DEBUG
+    payload = request.get_json()
+    entries = payload.get("entries", [])
+    print("✅ Entries received:", entries)
 
     try:
         for entry in entries:
