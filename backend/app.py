@@ -103,12 +103,35 @@ def schedules():
 
 @app.route("/api/billing-input", methods=["POST"])
 def billing_input():
-    entries = request.get_json()["entries"]
+    entries = request.get_json()
+    recipients = {r.id: r for r in Recipient.query.all()}
+
     for entry in entries:
-        new_b = BillingEntry(**entry)
-        db.session.add(new_b)
+        recipient_id = entry.get("recipient_id")
+        date = entry.get("date")
+        r = recipients.get(recipient_id)
+        if not r:
+            continue
+
+        work = entry.get("work_units")
+        trip = entry.get("trip_units")
+
+        work_val = int(work) if str(work).isdigit() else None
+        trip_val = int(trip) if str(trip).isdigit() else None
+
+        if work_val is None and trip_val is None:
+            continue
+
+        db.session.add(BillingEntry(
+            recipient_id=recipient_id,
+            date=date,
+            work_units=work_val,
+            trip_units=trip_val
+        ))
+
     db.session.commit()
     return jsonify({"status": "saved"})
+
 
 from datetime import datetime
 
