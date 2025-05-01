@@ -103,19 +103,10 @@ def schedules():
 
 @app.route("/api/billing-input", methods=["POST"])
 def billing_input():
-    entries = request.get_json()
-
+    entries = request.get_json()["entries"]
     for entry in entries:
-        work = str(entry.get("work_units", "")).strip()
-        trip = str(entry.get("trip_units", "")).strip()
-        
-        if work == "" and trip == "":
-            continue
-
-        entry["work_units"] = int(work) if work else None
-        entry["trip_units"] = int(trip) if trip else None
-        
-        db.session.add(BillingEntry(**entry))
+        new_b = BillingEntry(**entry)
+        db.session.add(new_b)
     db.session.commit()
     return jsonify({"status": "saved"})
 
@@ -141,38 +132,62 @@ def output():
 
     for e in entries:
         r = recipients.get(e.recipient_id)
-
-        # 🛡️ Skip if recipient doesn't exist
-        if r is None:
-            print(f"❌ Skipping entry with unknown recipient_id={e.recipient_id}")
+        if not r:
             continue
 
-        try:
-            last_name = (r.Last_Name or "")[:5].upper()
-            first_initial = (r.First_Name or "")[:1].upper()
-            medicaid_id = r.Medicaid_ID or ""
-            billing_month, day, billing_year = e.date.split("/")
-        except Exception as err:
-            print(f"❌ Skipping malformed entry: {e.__dict__} → {err}")
-            continue
+        last_name = r.Last_Name[:5].upper()
+        first_initial = r.First_Name[:1].upper()
+        medicaid_id = r.Medicaid_ID
+        billing_month = e.date.split("/")[0]
+        billing_year = e.date.split("/")[2]
+        day = e.date.split("/")[1]  # DD from MM/DD/YY
 
         if e.work_units:
-            results.append(
-                f"{billing_month}{billing_year}{current_date}{form}{medicaid_id}"
-                f"{last_name:<5}{first_initial}{contract}{day}{r.Work_Service_Code}"
-                f"{str(e.work_units):>4}{othercode}{otheramount}{groupsize}{county}"
-                f"{workrate:>7}{optionalref}{staffsize}"
+            line = (
+                f"{billing_month}"
+                f"{billing_year}"
+                f"{current_date}"
+                f"{form}"
+                f"{medicaid_id}"
+                f"{last_name:<5}"
+                f"{first_initial}"
+                f"{contract}"
+                f"{day}"
+                f"{r.Work_Service_Code}"
+                f"{str(e.work_units):>4}"
+                f"{othercode}"
+                f"{otheramount}"
+                f"{groupsize}"
+                f"{county}"
+                f"{workrate:>7}"
+                f"{optionalref}"
+                f"{staffsize}"
             )
+            results.append(line)
 
         if e.trip_units:
-            results.append(
-                f"{billing_month}{billing_year}{current_date}{form}{medicaid_id}"
-                f"{last_name:<5}{first_initial}{contract}{day}{r.Trip_Service_Code}"
-                f"{str(e.trip_units):>4}{othercode}{otheramount}{groupsize}{county}"
-                f"{triprate:>7}{optionalref}{staffsize}"
+            line = (
+                f"{billing_month}"
+                f"{billing_year}"
+                f"{current_date}"
+                f"{form}"
+                f"{medicaid_id}"
+                f"{last_name:<5}"
+                f"{first_initial}"
+                f"{contract}"
+                f"{day}"
+                f"{r.Trip_Service_Code}"
+                f"{str(e.trip_units):>4}"
+                f"{othercode}"
+                f"{otheramount}"
+                f"{groupsize}"
+                f"{county}"
+                f"{triprate:>7}"
+                f"{optionalref}"
+                f"{staffsize}"
             )
+            results.append(line)
 
-    print(f"✅ Output lines generated: {len(results)}")
     return jsonify(results)
 
 @app.route("/api/export", methods=["GET"])
