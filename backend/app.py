@@ -103,41 +103,37 @@ def schedules():
 
 @app.route("/api/billing-input", methods=["POST"])
 def billing_input():
-    payload = request.get_json()
-    entries = payload.get("entries", [])
+    data = request.get_json()
+    entries = data.get("entries", [])
+
     print("✅ Entries received:", entries)
 
-    try:
-        for entry in entries:
-            print("➡️ Processing entry:", entry)
+    for entry in entries:
+        print("➡️ Processing entry:", entry)
 
-            recipient_id = int(entry["recipient_id"])
-            date = entry["date"]
+        # Safely get each field and validate
+        recipient_id = entry.get("recipient_id")
+        date = entry.get("date")
+        work = entry.get("work_units", "").strip()
+        trip = entry.get("trip_units", "").strip()
 
-            work_units_raw = entry.get("work_units", "").strip()
-            trip_units_raw = entry.get("trip_units", "").strip()
+        # Skip entries with both fields empty
+        if work == "" and trip == "":
+            continue
 
-            work_units = int(work_units_raw) if work_units_raw else None
-            trip_units = int(trip_units_raw) if trip_units_raw else None
+        # Prepare fields (convert to int or None if blank)
+        work_units = int(work) if work.isdigit() else None
+        trip_units = int(trip) if trip.isdigit() else None
 
-            if work_units is None and trip_units is None:
-                print("⚠️ Skipping empty entry")
-                continue
+        db.session.add(BillingEntry(
+            recipient_id=recipient_id,
+            date=date,
+            work_units=work_units,
+            trip_units=trip_units
+        ))
 
-            db.session.add(BillingEntry(
-                recipient_id=recipient_id,
-                date=date,
-                work_units=work_units,
-                trip_units=trip_units
-            ))
-
-        db.session.commit()
-        return jsonify({"status": "saved"})
-
-    except Exception as e:
-        print("🚨 Exception during billing input:", str(e))
-        return jsonify({"error": str(e)}), 500
-
+    db.session.commit()
+    return jsonify({"status": "saved"})
 
 from datetime import datetime
 
