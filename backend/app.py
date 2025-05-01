@@ -103,12 +103,40 @@ def schedules():
 
 @app.route("/api/billing-input", methods=["POST"])
 def billing_input():
-    entries = request.get_json()["entries"]
-    for entry in entries:
-        new_b = BillingEntry(**entry)
-        db.session.add(new_b)
-    db.session.commit()
-    return jsonify({"status": "saved"})
+    entries = request.get_json()
+    print("✅ Incoming entries:", entries)  # DEBUG
+
+    try:
+        for entry in entries:
+            print("➡️ Processing entry:", entry)
+
+            recipient_id = int(entry["recipient_id"])
+            date = entry["date"]
+
+            work_units_raw = entry.get("work_units", "").strip()
+            trip_units_raw = entry.get("trip_units", "").strip()
+
+            work_units = int(work_units_raw) if work_units_raw else None
+            trip_units = int(trip_units_raw) if trip_units_raw else None
+
+            if work_units is None and trip_units is None:
+                print("⚠️ Skipping empty entry")
+                continue
+
+            db.session.add(BillingEntry(
+                recipient_id=recipient_id,
+                date=date,
+                work_units=work_units,
+                trip_units=trip_units
+            ))
+
+        db.session.commit()
+        return jsonify({"status": "saved"})
+
+    except Exception as e:
+        print("🚨 Exception during billing input:", str(e))
+        return jsonify({"error": str(e)}), 500
+
 
 from datetime import datetime
 
