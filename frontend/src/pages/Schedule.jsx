@@ -20,19 +20,30 @@ export default function Schedule() {
     service_type: "work",
   });
 
-  useEffect(() => {
-    getRecipients().then(res => setRecipients(res.data));
-    getSchedules().then(res => setSchedules(sortByWeekday(res.data)));
-  }, []);
-
-  const sortByWeekday = (list) => {
-    return [...list].sort((a, b) => {
-      return (
-        weekdayOrder.indexOf(a.weekday.toLowerCase()) -
-        weekdayOrder.indexOf(b.weekday.toLowerCase())
-      );
+useEffect(() => {
+  getRecipients().then(recRes => {
+    const recMap = Object.fromEntries(recRes.data.map(r => [r.id, r]));
+    setRecipients(recRes.data);
+    getSchedules().then(schedRes => {
+      setSchedules(sortByWeekday(schedRes.data, recMap));
     });
-  };
+  });
+}, []);
+
+const sortByWeekday = (list, recipientMap) => {
+  return [...list].sort((a, b) => {
+    const dayA = weekdayOrder.indexOf(a.weekday.toLowerCase());
+    const dayB = weekdayOrder.indexOf(b.weekday.toLowerCase());
+    if (dayA !== dayB) return dayA - dayB;
+
+    const recA = recipientMap[a.recipient_id];
+    const recB = recipientMap[b.recipient_id];
+    if (!recA || !recB) return 0;
+
+    return recA.Last_Name.localeCompare(recB.Last_Name);
+  });
+};
+
 
   const sortedRecipients = [...recipients].sort((a, b) => {
     const lastA = a.Last_Name.toLowerCase();
@@ -44,17 +55,20 @@ export default function Schedule() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const recipientMap = Object.fromEntries(recipients.map(r => [r.id, r]));
+
   const handleSubmit = async () => {
     await addSchedule(form);
     const updated = await getSchedules();
-    setSchedules(sortByWeekday(updated.data));
+    setSchedules(sortByWeekday(updated.data, recipientMap));
   };
 
   const handleDelete = async (id) => {
     await deleteSchedule(id);
     const updated = await getSchedules();
-    setSchedules(sortByWeekday(updated.data));
+    setSchedules(sortByWeekday(updated.data, recipientMap));
   };
+
 
   const rec = recipients.find(r => r.id === Number(form.recipient_id));
   const addingTrip = form.service_type.toLowerCase() === "trip";
