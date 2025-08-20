@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getRecipients, addRecipient, deleteRecipient } from "../api";
 
-const WORK_CODES = ["", "ADF", "AVF", "FVF"];
+const WORK_CODES = ["", "ADF", "AVF", "FVF", "AEE", "FVT"];
 const TRIP_CODES = ["", "ATB", "FTB"];
 
 export default function Recipients() {
