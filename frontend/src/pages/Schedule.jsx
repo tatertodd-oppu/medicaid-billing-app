@@ -74,7 +74,7 @@ const sortByWeekday = (list, recipientMap) => {
   const addingTrip = form.service_type.toLowerCase() === "trip";
   const addingWork = form.service_type.toLowerCase() === "work";
 
-  const validWorkCodes = ["ADF", "AVF", "FVF"];
+  const validWorkCodes = ["ADF", "AVF", "FVF", "AEE", "FVT"];
   const validTripCodes = ["ATB", "FTB"];
 
   const hasValidServiceCode =
