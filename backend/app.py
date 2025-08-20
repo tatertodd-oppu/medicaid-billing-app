@@ -56,7 +56,7 @@ def recipients():
         work_code = data.get("Work_Service_Code", "")
         trip_code = data.get("Trip_Service_Code", "")
 
-        if work_code and work_code.upper() not in {"ADF", "AVF", "FVF"}:
+        if work_code and work_code.upper() not in {"ADF", "AVF", "FVF", "AEE", "FVT"}:
             return jsonify({"error": f"Invalid Work_Service_Code: {work_code}"}), 400
 
         if trip_code and trip_code.upper() not in {"ATB", "FTB"}:
